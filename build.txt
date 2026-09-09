@@ -1,0 +1,6 @@
+displayName = Various Mod Patches
+author = IvanVSolo2004
+version = 0.6.2
+buildIgnore = *.sln, *.csproj, *.user, obj/*, bin/*, .git/*, .github/*, LICENSE, README.md, .gitignore, .gitattributes
+includeSource = true
+sortBefore = CalamityHunt

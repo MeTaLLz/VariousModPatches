@@ -1,0 +1,74 @@
+DisplayName: Конфигурация различных патчей для модов
+
+Headers: {
+	Patches: Патчи
+	Debug: Отладка
+}
+
+PatchTerrariaAmbience_Message: {
+	Label: "[i:966] Terraria Ambience (Сообщение)"
+	Tooltip: Убирает сообщение при входе в мир от Terraria Ambience.
+}
+
+PatchTerrariaAmbience_Audio: {
+	Label: "[i:966] Terraria Ambience (Фикс)"
+	Tooltip: Исправляет блокировку выхода из меню ресурспаков после выхода из мира, вызванную аудиоошибками Terraria Ambience.
+}
+
+PatchRecipeFavoritesSync: {
+	Label: "[i:149] [i:3985] Recipe Browser × Magic Storage: Fully Connected"
+	Tooltip: Убирает сообщение при входе в мир от Recipe Browser × Magic Storage: Fully Connected.
+}
+
+PatchMagicStorage: {
+	Label: "[i:3985] Magic Storage"
+	Tooltip: Убирает напоминание о поддержке автора от Magic Storage.
+}
+
+PatchSOTS: {
+	Label: "[i:115] Secrets of the Shadows"
+	Tooltip: Заменяет локализацию, чтобы сделать пустыми сообщения при входе в мир (из-за скрытого кода не удалить).
+}
+
+PatchInfernumMasterPatch: {
+	Label: "[i:4878] Infernum Master Patch"
+	Tooltip:
+		'''
+		При загрузке мира автоматически включает сложность Infernum Master Patch, если 
+		в нем активны Мастер + Смерть + Инфернум (то есть мир был сохранён при сложности IMP).
+		'''
+}
+
+PatchRainOverhaul: {
+	Label: "[i:946] Rain Overhaul"
+	Tooltip:
+		'''
+		Предотвращает внезапное исчезновение Пожирателя Богов из Calamity и Императрицы Света из WoTE 
+		(и, возможно, другие проблемы), только если выключен режим Rain World.
+		'''
+}
+
+PatchKZVisualMod_LightningMode: {
+	Label: "[i:3031] KZ Visual Mod"
+	Tooltip:
+		'''
+		KZ Visual Mod после перезагрузки модов принудительно устанавливает режим освещения на Белое. 
+		Эта настройка заменяет его на выбранный вами.
+		-1 = Отключено
+		0 = Цветное, 1 = Белое, 2 = Ретро, 3 = Психоделика
+		'''
+}
+
+PatchCalamityHunt: {
+	Label: "[i:4987] Calamity: Hunt of the Old God"
+	Tooltip:
+		'''
+		Предотвращает краш при выгрузке модов, вызванный тем, что Calamity: Hunt of the Old God обращается к отрисовке игрока, 
+		что триггерит слои отрисовки уже частично выгруженных некоторых модов (например, WeaponOut Lite).
+		'''
+}
+
+DisableVersionWarnings: {
+	Label: "[i:1344] Отключить предупреждения о версиях"
+	Tooltip: Отключает вывод предупреждений о несовпадении версий модов в client.log.
+}

@@ -1,0 +1,24 @@
+Patches various annoyances and issues in other mods that authors haven't addressed yet. NOT an optimizer — just small fixes for specific problems.
+
+Available patches:
+[list]
+[*][b]Terraria Ambience:[/b]
+  - Removes the startup message from the mod when entering a world
+  - Fixes being unable to exit the resource pack menu after leaving a world, caused by audio errors from the mod
+[*][b]Recipe Browser × Magic Storage: Fully Connected:[/b]
+  - Removes the startup message from the mod when entering a world
+[*][b]Magic Storage:[/b]
+  - Removes the patron reminder message from the mod
+[*][b]Secrets of the Shadows:[/b]
+  - Replaces localization to make startup messages from the mod empty when entering a world (mod code is hidden)
+[*][b]Infernum Master Patch:[/b]
+  - When loading a world, automatically enables Infernum Master Patch difficulty if Master + Death + Infernum are active (i.e. the world was saved at the IMP difficulty)
+[*][b]KZ的视觉效果前置 (KZ_VisualMod, library for Luminous Water Reflection 潮之韵(Demo) and Shape of Light 光之形):[/b]
+  - Overrides forced White lighting to your preferred mode (mod code is hidden)
+[*][b]Rain Overhaul:[/b]
+  - Prevents sudden disappearance of Devourer of Gods from Calamity and Empress of Light from WoTE (and possibly other issues), only if Rain World mode is disabled
+[*][b]Calamity: Hunt of the Old God:[/b]
+  - Prevents a crash during mod unloading caused by Calamity: Hunt of the Old God calling player rendering, which triggers draw layers from some mods that are already partially unloaded (e.g. WeaponOut Lite)
+[/list]
+
+This mod will become lighter as these issues are addressed by mod authors.
