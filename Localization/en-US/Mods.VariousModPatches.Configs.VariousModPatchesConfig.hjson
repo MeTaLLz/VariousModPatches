@@ -1,0 +1,79 @@
+DisplayName: VMP Configuration
+
+Headers: {
+	Patches: Patches
+	Debug: Debug
+}
+
+PatchTerrariaAmbience_Message: {
+	Label: "[i:966] Terraria Ambience (Message)"
+	Tooltip: Removes the startup message from Terraria Ambience when entering a world.
+}
+
+PatchTerrariaAmbience_Audio: {
+	Label: "[i:966] Terraria Ambience (Fix)"
+	Tooltip: Fixes being unable to exit the resource pack menu after leaving a world, caused by audio errors from Terraria Ambience.
+}
+
+PatchRecipeFavoritesSync: {
+	Label: "[i:149] [i:3985] Recipe Browser × Magic Storage: Fully Connected"
+	Tooltip: Removes the startup message from Recipe Browser × Magic Storage: Fully Connected when entering a world.
+}
+
+PatchMagicStorage: {
+	Label: "[i:3985] Magic Storage"
+	Tooltip: Removes the patron reminder message from Magic Storage.
+}
+
+PatchSOTS: {
+	Label: "[i:115] Secrets of the Shadows"
+	Tooltip: Replaces localization to make startup messages empty when entering a world (cannot remove due to hidden code).
+}
+
+PatchInfernumMasterPatch: {
+	Label: "[i:4878] Infernum Master Patch"
+	Tooltip:
+		'''
+		When loading a world, automatically enables Infernum Master Patch difficulty if 
+		Master + Death + Infernum are active (i.e. the world was saved at the IMP difficulty).
+		'''
+}
+
+PatchRainOverhaul: {
+	Label: "[i:946] Rain Overhaul"
+	Tooltip:
+		'''
+		Prevents sudden disappearance of Devourer of Gods from Calamity and Empress of Light from WoTE 
+		(and possibly other issues), only if Rain World mode is disabled.
+		'''
+}
+
+PatchKZVisualMod_LightningMode: {
+	Label: "[i:3031] KZ Visual Mod"
+	Tooltip:
+		'''
+		KZ Visual Mod after mods reload forces lighting mode to White. 
+		This setting overrides it to your preferred.
+		-1 = Disabled
+		0 = Color, 1 = White, 2 = Retro, 3 = Trippy
+		'''
+}
+
+PatchCalamityHunt: {
+	Label: "[i:4987] Calamity: Hunt of the Old God"
+	Tooltip:
+		'''
+		Prevents a crash during mod unloading caused by Calamity: Hunt of the Old God calling player rendering, 
+		which triggers draw layers from some mods that are already partially unloaded (e.g. WeaponOut Lite).
+		'''
+}
+
+PatchWorldOfPiss: {
+	Label: "[i:1332] World of Piss"
+	Tooltip: Disables random Piss Moons, leaving only the angler quest trigger.
+}
+
+DisableVersionWarnings: {
+	Label: "[i:1344] Disable version warnings"
+	Tooltip: Prevents logging mod version mismatch warnings in client.log.
+}
