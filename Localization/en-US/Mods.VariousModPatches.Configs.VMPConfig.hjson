@@ -1,0 +1,66 @@
+DisplayName: VMP Configuration
+
+Headers: {
+	Patches: Patches
+	Debug: Debug
+}
+
+PatchTerrariaAmbience_Message: {
+	Label: "[i:966] Terraria Ambience (Message)"
+	Tooltip: ""
+}
+
+PatchTerrariaAmbience_Audio: {
+	Label: "[i:966] Terraria Ambience (Fix)"
+	Tooltip: ""
+}
+
+PatchRecipeFavoritesSync: {
+	Label: "[i:149] [i:3985] Recipe Browser × Magic Storage: Fully Connected"
+	Tooltip: ""
+}
+
+PatchMagicStorage: {
+	Label: "[i:3985] Magic Storage"
+	Tooltip: ""
+}
+
+PatchSOTS: {
+	Label: "[i:115] Secrets of the Shadows"
+	Tooltip: ""
+}
+
+PatchInfernumMasterPatch: {
+	Label: "[i:4878] Infernum Master Patch"
+	Tooltip: ""
+}
+
+PatchRainOverhaul: {
+	Label: "[i:946] Rain Overhaul"
+	Tooltip: ""
+}
+
+PatchKZVisualMod: {
+	Label: "[i:3031] KZ Visual Mod"
+	Tooltip: ""
+}
+
+PatchCalamityHunt: {
+	Label: "[i:4987] Calamity: Hunt of the Old God"
+	Tooltip: ""
+}
+
+PatchWorldOfPiss: {
+	Label: "[i:1332] World of Piss"
+	Tooltip: ""
+}
+
+PatchSplit: {
+	Label: "[i:716] Split"
+	Tooltip: ""
+}
+
+DisableVersionWarnings: {
+	Label: "[i:1344] Disable version warnings"
+	Tooltip: Prevents logging mod version mismatch warnings in client.log.
+}
