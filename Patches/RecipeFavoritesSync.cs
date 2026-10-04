@@ -4,7 +4,6 @@ using System.Reflection;
 using MonoMod.RuntimeDetour;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
-using System;
 
 namespace VariousModPatches
 {
@@ -14,7 +13,7 @@ namespace VariousModPatches
 
         public override void PostSetupContent()
         {
-            if (NetmodeHelper.IsServer) return;
+            if (Netmode.IsServer) return;
             if (!Instances.Config.PatchRecipeFavoritesSync) return;
 
             var mod = VersionChecker.GetModChecked("RecipeFavoritesSync", "RecipeFavoritesSync");
@@ -30,31 +29,17 @@ namespace VariousModPatches
 
         private bool ApplyOnEnterWorldHook(Mod mod)
         {
-            var targetType = mod.Code.GetType("RecipeFavoritesSync.Integration.RecipeBrowser.RecipeFavoritesSyncPlayer");
-            if (targetType == null)
-            {
-                FileLogger.Warn("RecipeFavoritesSync", "RecipeFavoritesSyncPlayer type not found");
-                return false;
-            }
+            var targetType = Reflection.GetType(mod,
+                "RecipeFavoritesSync.Integration.RecipeBrowser.RecipeFavoritesSyncPlayer",
+                "RecipeFavoritesSync");
+            if (targetType == null) return false;
 
-            var method = targetType.GetMethod("OnEnterWorld",
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            if (method == null)
-            {
-                FileLogger.Warn("RecipeFavoritesSync", "OnEnterWorld method not found");
-                return false;
-            }
+            var method = Reflection.GetMethod(targetType, "OnEnterWorld",
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "RecipeFavoritesSync");
+            if (method == null) return false;
 
-            try
-            {
-                _ilHook = new ILHook(method, OnEnterWorld_IL);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                FileLogger.Error("RecipeFavoritesSync", $"ILHook failed: {ex.Message}");
-                return false;
-            }
+            return Reflection.TryCreateILHook(method, OnEnterWorld_IL,
+                out _ilHook, "RecipeFavoritesSync");
         }
 
         private void OnEnterWorld_IL(ILContext il)

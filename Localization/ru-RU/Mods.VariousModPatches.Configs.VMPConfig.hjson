@@ -1,7 +1,8 @@
 DisplayName: Конфигурация VMP
 
 Headers: {
-	Patches: Патчи
+	QoL: Удобство
+	Fixes: Фиксы
 	Debug: Отладка
 }
 
@@ -35,11 +36,6 @@ PatchInfernumMasterPatch: {
 	Tooltip: ""
 }
 
-PatchRainOverhaul: {
-	Label: "[i:946] Rain Overhaul"
-	Tooltip: ""
-}
-
 PatchKZVisualMod: {
 	Label: "[i:3031] KZ Visual Mod"
 	Tooltip: ""
@@ -50,13 +46,8 @@ PatchCalamityHunt: {
 	Tooltip: ""
 }
 
-PatchWorldOfPiss: {
-	Label: "[i:1332] World of Piss"
-	Tooltip: ""
-}
-
-PatchSplit: {
-	Label: "[i:716] Split"
+PatchShapeOfLight: {
+	Label: "[i:5339] Shape of Light"
 	Tooltip: ""
 }
 

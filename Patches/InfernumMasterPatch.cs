@@ -18,8 +18,7 @@ namespace VariousModPatches
 
         public override void PostSetupContent()
         {
-            // Maybe later will support multiplayer
-            if (!NetmodeHelper.IsSingleplayer) return;
+            if (!Netmode.IsSingleplayer) return;
             if (!Instances.Config.PatchInfernumMasterPatch) return;
 
             var mod = VersionChecker.GetModChecked("InfernumMasterPatch", "InfernumMasterPatch");
@@ -43,24 +42,15 @@ namespace VariousModPatches
 
         private static bool FindDifficultyType(Mod mod)
         {
-            _difficultyType = mod.Code.GetType("InfernumMasterPatch.MasterPatchDifficulty");
-            if (_difficultyType == null)
-            {
-                FileLogger.Warn("InfernumMasterPatch", "MasterPatchDifficulty type not found");
-                return false;
-            }
-            return true;
+            _difficultyType = Reflection.GetType(mod, "InfernumMasterPatch.MasterPatchDifficulty", "InfernumMasterPatch");
+            return _difficultyType != null;
         }
 
         private static bool FindEnabledProperty(out PropertyInfo prop)
         {
-            prop = _difficultyType.GetProperty("Enabled", BindingFlags.Public | BindingFlags.Instance);
-            if (prop == null)
-            {
-                FileLogger.Warn("InfernumMasterPatch", "Enabled property not found");
-                return false;
-            }
-            return true;
+            prop = Reflection.GetProperty(_difficultyType, "Enabled",
+                BindingFlags.Public | BindingFlags.Instance, "InfernumMasterPatch");
+            return prop != null;
         }
 
         private static bool FindCalamityTypes()
@@ -68,42 +58,23 @@ namespace VariousModPatches
             var calamity = VersionChecker.GetModChecked("CalamityMod", "InfernumMasterPatch", isSelf: false);
             if (calamity == null) return false;
 
-            var sysType = calamity.Code.GetType("CalamityMod.Systems.DifficultyModeSystem");
-            if (sysType == null)
-            {
-                FileLogger.Warn("InfernumMasterPatch", "DifficultyModeSystem type not found");
-                return false;
-            }
+            var sysType = Reflection.GetType(calamity, "CalamityMod.Systems.DifficultyModeSystem", "InfernumMasterPatch");
+            if (sysType == null) return false;
 
-            _difficultiesField = sysType.GetField("Difficulties", BindingFlags.Static | BindingFlags.Public);
-            if (_difficultiesField == null)
-            {
-                FileLogger.Warn("InfernumMasterPatch", "Difficulties field not found");
-                return false;
-            }
+            _difficultiesField = Reflection.GetField(sysType, "Difficulties",
+                BindingFlags.Static | BindingFlags.Public, "InfernumMasterPatch");
+            if (_difficultiesField == null) return false;
 
-            _calculateMethod = sysType.GetMethod("CalculateDifficultyData", BindingFlags.Static | BindingFlags.Public);
-            if (_calculateMethod == null)
-            {
-                FileLogger.Warn("InfernumMasterPatch", "CalculateDifficultyData method not found");
-                return false;
-            }
+            _calculateMethod = Reflection.GetMethod(sysType, "CalculateDifficultyData",
+                BindingFlags.Static | BindingFlags.Public, "InfernumMasterPatch");
+            if (_calculateMethod == null) return false;
 
-            var worldType = calamity.Code.GetType("CalamityMod.World.CalamityWorld");
-            if (worldType == null)
-            {
-                FileLogger.Warn("InfernumMasterPatch", "CalamityWorld type not found");
-                return false;
-            }
+            var worldType = Reflection.GetType(calamity, "CalamityMod.World.CalamityWorld", "InfernumMasterPatch");
+            if (worldType == null) return false;
 
-            _deathField = worldType.GetField("death", BindingFlags.Static | BindingFlags.Public);
-            if (_deathField == null)
-            {
-                FileLogger.Warn("InfernumMasterPatch", "death field not found");
-                return false;
-            }
-
-            return true;
+            _deathField = Reflection.GetField(worldType, "death",
+                BindingFlags.Static | BindingFlags.Public, "InfernumMasterPatch");
+            return _deathField != null;
         }
 
         private static bool FindInfernumTypes()
@@ -111,26 +82,18 @@ namespace VariousModPatches
             var infernum = VersionChecker.GetModChecked("InfernumMode", "InfernumMasterPatch", isSelf: false);
             if (infernum == null) return false;
 
-            var worldSaveType = infernum.Code.GetType("InfernumMode.Core.GlobalInstances.Systems.WorldSaveSystem");
-            if (worldSaveType == null)
-            {
-                FileLogger.Warn("InfernumMasterPatch", "WorldSaveSystem type not found");
-                return false;
-            }
+            var worldSaveType = Reflection.GetType(infernum,
+                "InfernumMode.Core.GlobalInstances.Systems.WorldSaveSystem", "InfernumMasterPatch");
+            if (worldSaveType == null) return false;
 
-            _infernumModeEnabledProp = worldSaveType.GetProperty("InfernumModeEnabled", BindingFlags.Static | BindingFlags.Public);
-            if (_infernumModeEnabledProp == null)
-            {
-                FileLogger.Warn("InfernumMasterPatch", "InfernumModeEnabled property not found");
-                return false;
-            }
-
-            return true;
+            _infernumModeEnabledProp = Reflection.GetProperty(worldSaveType, "InfernumModeEnabled",
+                BindingFlags.Static | BindingFlags.Public, "InfernumMasterPatch");
+            return _infernumModeEnabledProp != null;
         }
 
         public override void PostWorldLoad()
         {
-            if (!NetmodeHelper.IsSingleplayer) return;
+            if (!Netmode.IsSingleplayer) return;
 
             bool isMaster = Main.GameMode == GameModeID.Master;
             bool isDeath = false;

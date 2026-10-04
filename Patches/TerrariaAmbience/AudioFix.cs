@@ -19,7 +19,7 @@ namespace VariousModPatches
 
         public override void PostSetupContent()
         {
-            if (!NetmodeHelper.IsSingleplayer) return;
+            if (!Netmode.IsSingleplayer) return;
             if (!Instances.Config.PatchTerrariaAmbience_Audio) return;
 
             var mod = VersionChecker.GetModChecked("TerrariaAmbience", "TerrariaAmbience_Audio");
@@ -36,24 +36,12 @@ namespace VariousModPatches
 
         private bool ApplyLoadFromSourcesHook()
         {
-            var audioMethod = typeof(LegacyAudioSystem).GetMethod("LoadFromSources",
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            if (audioMethod == null)
-            {
-                FileLogger.Warn("TerrariaAmbience_Audio", "LoadFromSources method not found");
-                return false;
-            }
+            var audioMethod = Reflection.GetMethod(typeof(LegacyAudioSystem), "LoadFromSources",
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "TerrariaAmbience_Audio");
+            if (audioMethod == null) return false;
 
-            try
-            {
-                _ilHook = new ILHook(audioMethod, LoadFromSources_IL);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                FileLogger.Error("TerrariaAmbience_Audio", $"ILHook failed: {ex.Message}");
-                return false;
-            }
+            return Reflection.TryCreateILHook(audioMethod, LoadFromSources_IL,
+                out _ilHook, "TerrariaAmbience_Audio");
         }
 
         private void LoadFromSources_IL(ILContext il)

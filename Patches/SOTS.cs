@@ -3,7 +3,6 @@ using Terraria.ModLoader;
 using MonoMod.RuntimeDetour;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
-using System;
 using System.Reflection;
 
 namespace VariousModPatches
@@ -14,7 +13,7 @@ namespace VariousModPatches
 
         public override void PostSetupContent()
         {
-            if (NetmodeHelper.IsServer) return;
+            if (Netmode.IsServer) return;
             if (!Instances.Config.PatchSOTS) return;
 
             var mod = VersionChecker.GetModChecked("SOTS", "SOTS");
@@ -30,31 +29,15 @@ namespace VariousModPatches
 
         private bool ApplyOnEnterWorldHook(Mod mod)
         {
-            var targetType = mod.Code.GetType("SOTS.SOTSPlayer");
-            if (targetType == null)
-            {
-                FileLogger.Warn("SOTS", "SOTSPlayer type not found");
-                return false;
-            }
+            var targetType = Reflection.GetType(mod, "SOTS.SOTSPlayer", "SOTS");
+            if (targetType == null) return false;
 
-            var method = targetType.GetMethod("OnEnterWorld",
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            if (method == null)
-            {
-                FileLogger.Warn("SOTS", "OnEnterWorld method not found");
-                return false;
-            }
+            var method = Reflection.GetMethod(targetType, "OnEnterWorld",
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "SOTS");
+            if (method == null) return false;
 
-            try
-            {
-                _ilHook = new ILHook(method, OnEnterWorld_IL);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                FileLogger.Error("SOTS", $"ILHook failed: {ex.Message}");
-                return false;
-            }
+            return Reflection.TryCreateILHook(method, OnEnterWorld_IL,
+                out _ilHook, "SOTS");
         }
 
         private void OnEnterWorld_IL(ILContext il)

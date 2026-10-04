@@ -1,5 +1,4 @@
 using Terraria.ModLoader;
-using System;
 using System.Reflection;
 using MonoMod.RuntimeDetour;
 using MonoMod.Cil;
@@ -15,7 +14,7 @@ namespace VariousModPatches
 
         public override void PostSetupContent()
         {
-            if (!NetmodeHelper.IsSingleplayer) return;
+            if (!Netmode.IsSingleplayer) return;
             if (!Instances.Config.PatchCalamityHunt) return;
 
             var mod = VersionChecker.GetModChecked("CalamityHunt", "CalamityHunt");
@@ -34,64 +33,39 @@ namespace VariousModPatches
 
         private bool ApplyUnloadHook()
         {
-            var method = typeof(ModContent).GetMethod("UnloadModContent",
-                BindingFlags.NonPublic | BindingFlags.Static);
-            if (method == null)
-            {
-                FileLogger.Warn("CalamityHunt", "UnloadModContent method not found");
-                return false;
-            }
+            var method = Reflection.GetMethod(typeof(ModContent), "UnloadModContent",
+                BindingFlags.NonPublic | BindingFlags.Static, "CalamityHunt");
+            if (method == null) return false;
 
-            try
-            {
-                _ilHook_UnloadModContent = new ILHook(method, (il) =>
-                {
-                    var cursor = new ILCursor(il);
-                    cursor.Emit(OpCodes.Call, typeof(CalamityHunt).GetMethod("SetUnloadingFlag",
-                        BindingFlags.NonPublic | BindingFlags.Static));
-                });
-                return true;
-            }
-            catch (Exception ex)
-            {
-                FileLogger.Error("CalamityHunt", $"UnloadModContent ILHook failed: {ex.Message}");
-                return false;
-            }
+            return Reflection.TryCreateILHook(method, UnloadModContent_IL,
+                out _ilHook_UnloadModContent, "CalamityHunt");
         }
 
         private bool ApplyCombineTileTargetsHook(Mod mod)
         {
-            var targetType = mod.Code.GetType("CalamityHunt.Common.Systems.TileEdgeHighlight");
-            if (targetType == null)
-            {
-                FileLogger.Warn("CalamityHunt", "TileEdgeHighlight type not found");
-                return false;
-            }
+            var targetType = Reflection.GetType(mod, "CalamityHunt.Common.Systems.TileEdgeHighlight", "CalamityHunt");
+            if (targetType == null) return false;
 
-            var method = targetType.GetMethod("CombineTileTargets",
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            if (method == null)
-            {
-                FileLogger.Warn("CalamityHunt", "CombineTileTargets method not found");
-                return false;
-            }
+            var method = Reflection.GetMethod(targetType, "CombineTileTargets",
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "CalamityHunt");
+            if (method == null) return false;
 
-            try
-            {
-                _ilHook_CombineTileTargets = new ILHook(method, CombineTileTargets_IL);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                FileLogger.Error("CalamityHunt", $"CombineTileTargets ILHook failed: {ex.Message}");
-                return false;
-            }
+            return Reflection.TryCreateILHook(method, CombineTileTargets_IL,
+                out _ilHook_CombineTileTargets, "CalamityHunt");
+        }
+
+        private void UnloadModContent_IL(ILContext il)
+        {
+            var cursor = new ILCursor(il);
+            cursor.Emit(OpCodes.Call, typeof(CalamityHunt).GetMethod("SetUnloadingFlag",
+                BindingFlags.NonPublic | BindingFlags.Static));
         }
 
         private static void SetUnloadingFlag()
         {
             _isUnloading = true;
         }
+
 
         private void CombineTileTargets_IL(ILContext il)
         {

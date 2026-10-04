@@ -1,7 +1,7 @@
+/*
 using Terraria.ModLoader;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
-using System;
 using System.Reflection;
 using MonoMod.RuntimeDetour;
 
@@ -28,54 +28,26 @@ namespace VariousModPatches
 
         private bool ApplyNPCRainHandlerHook(Mod mod)
         {
-            var targetType = mod.Code.GetType("RainOverhaul.Source.RainSystem.NPCRainHandler");
-            if (targetType == null)
-            {
-                FileLogger.Warn("RainOverhaul", "NPCRainHandler type not found");
-                return false;
-            }
+            var targetType = ReflectionHelper.GetType(mod, "RainOverhaul.Source.RainSystem.NPCRainHandler", "RainOverhaul");
+            if (targetType == null) return false;
 
-            var method = targetType.GetMethod("AI",
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            if (method == null)
-            {
-                FileLogger.Warn("RainOverhaul", "AI method not found");
-                return false;
-            }
+            var method = ReflectionHelper.GetMethod(targetType, "AI",
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "RainOverhaul");
+            if (method == null) return false;
 
-            var configType = mod.Code.GetType("RainOverhaul.Source.Configs.ConfigServer");
-            if (configType == null)
-            {
-                FileLogger.Warn("RainOverhaul", "ConfigServer type not found");
-                return false; 
-            }
+            var configType = ReflectionHelper.GetType(mod, "RainOverhaul.Source.Configs.ConfigServer", "RainOverhaul");
+            if (configType == null) return false;
 
-            var field = configType.GetField("isRainWorldMode",
-                BindingFlags.Public | BindingFlags.Instance);
-            if (field == null)
-            {
-                FileLogger.Warn("RainOverhaul", "isRainWorldMode field not found");
-                return false;
-            }
+            var field = ReflectionHelper.GetField(configType, "isRainWorldMode",
+                BindingFlags.Public | BindingFlags.Instance, "RainOverhaul");
+            if (field == null) return false;
 
-            var instanceField = configType.GetField("Instance",
-                BindingFlags.Public | BindingFlags.Static);
-            if (instanceField == null)
-            {
-                FileLogger.Warn("RainOverhaul", "Instance field not found");
-                return false;
-            }
+            var instanceField = ReflectionHelper.GetField(configType, "Instance",
+                BindingFlags.Public | BindingFlags.Static, "RainOverhaul");
+            if (instanceField == null) return false;
 
-            try
-            {
-                _ilHook = new ILHook(method, NPCRainHandler_AI_IL);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                FileLogger.Error("RainOverhaul", $"ILHook failed: {ex.Message}");
-                return false;
-            }
+            return ReflectionHelper.TryCreateILHook(method, NPCRainHandler_AI_IL,
+                out _ilHook, "RainOverhaul");
         }
 
         private void NPCRainHandler_AI_IL(ILContext il)

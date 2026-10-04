@@ -14,7 +14,7 @@ namespace VariousModPatches
 
         public override void Load()
         {
-            if (!NetmodeHelper.IsSingleplayer) return;
+            if (!Netmode.IsSingleplayer) return;
             if (!Instances.Config.PatchKZVisualMod) return;
 
             var mod = VersionChecker.GetModChecked("KZ_VisualMod", "KZ_VisualMod");
@@ -32,56 +32,28 @@ namespace VariousModPatches
 
         private bool ApplyBrokenMethodHook(Mod mod)
         {
-            var targetType = mod.Code.GetType("KZ_VisualMod.KZ_VisualMod");
-            if (targetType == null)
-            {
-                FileLogger.Warn("KZ_VisualMod", "KZ_VisualMod type not found");
-                return false;
-            }
+            var targetType = Reflection.GetType(mod, "KZ_VisualMod.KZ_VisualMod", "KZ_VisualMod");
+            if (targetType == null) return false;
 
-            var method = targetType.GetMethod("_KZ_On_Lighting_NextLightMode",
-                BindingFlags.NonPublic | BindingFlags.Static);
-            if (method == null)
-            {
-                FileLogger.Warn("KZ_VisualMod", "_KZ_On_Lighting_NextLightMode method not found");
-                return false;
-            }
+            var method = Reflection.GetMethod(targetType, "_KZ_On_Lighting_NextLightMode",
+                BindingFlags.NonPublic | BindingFlags.Static, "KZ_VisualMod");
+            if (method == null) return false;
 
-            try
-            {
-                _ilHook_Broken = new ILHook(method, ClearMethod_IL);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                FileLogger.Error("KZ_VisualMod", $"Broken ILHook failed: {ex.Message}");
-                return false;
-            }
+            return Reflection.TryCreateILHook(method, ClearMethod_IL,
+                out _ilHook_Broken, "KZ_VisualMod");
         }
 
         private bool ApplyWrapperMethodHook(Mod mod)
         {
-            var targetType = mod.Code.GetType("KZ_VisualMod.KZ_VisualMod");
+            var targetType = Reflection.GetType(mod, "KZ_VisualMod.KZ_VisualMod", "KZ_VisualMod");
             if (targetType == null) return false;
 
-            var method = targetType.GetMethod("KZ_On_Lighting_NextLightMode",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            if (method == null)
-            {
-                FileLogger.Warn("KZ_VisualMod", "KZ_On_Lighting_NextLightMode method not found");
-                return false;
-            }
+            var method = Reflection.GetMethod(targetType, "KZ_On_Lighting_NextLightMode",
+                BindingFlags.NonPublic | BindingFlags.Instance, "KZ_VisualMod");
+            if (method == null) return false;
 
-            try
-            {
-                _ilHook_Wrapper = new ILHook(method, CallOrig_IL);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                FileLogger.Error("KZ_VisualMod", $"Wrapper ILHook failed: {ex.Message}");
-                return false;
-            }
+            return Reflection.TryCreateILHook(method, CallOrig_IL,
+                out _ilHook_Wrapper, "KZ_VisualMod");
         }
 
         private void ClearMethod_IL(ILContext il)
