@@ -63,6 +63,12 @@ namespace VariousModPatches
         [ReloadRequired]
         public bool PatchCalamityHunt = true;
 
+        [Header("Performance")]
+        [BackgroundColor(120, 60, 55, 220)]
+        [DefaultValue(true)]
+        [ReloadRequired]
+        public bool PatchInfernumMode = true;
+
         [Header("Debug")]
         [BackgroundColor(120, 60, 55, 220)]
         [DefaultValue(false)]

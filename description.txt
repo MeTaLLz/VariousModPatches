@@ -1,5 +1,3 @@
-Reuploaded
-
 Patches various annoyances and issues in other mods that authors haven't addressed yet. NOT an optimizer — just small fixes for specific problems.
 
 Available patches:  
@@ -19,7 +17,7 @@ Available patches:
   • Calamity: Hunt of the Old God:  
     - Prevents a crash during mod unloading caused by Calamity: Hunt of the Old God calling player rendering, which triggers draw layers from some mods that are already partially unloaded (e.g. WeaponOut Lite)  
   
-Retired patches:
+Deleted patches:
   • Rain Overhaul:  
     - Prevents sudden disappearance of Devourer of Gods from Calamity and Empress of Light from WoTE (and possibly other issues), only if Rain World mode is disabled  
 
@@ -27,32 +25,9 @@ This mod will become lighter as these issues are addressed by mod authors.
 
 (Only bugs, crashes, and small annoyances. Won't do content or design changes)
 
----
-Перезагрузил
-
-Исправляет различные раздражающие моменты и проблемы в других модах, которые авторы пока не исправили. Это НЕ оптимизатор — просто маленькие фиксы для конкретных ситуаций.
-
-Доступные патчи:
-  • Terraria Ambience:
-    - Убирает сообщение от мода при входе в мир
-    - Исправляет блокировку выхода из меню ресурспаков после выхода из мира, вызванную аудиоошибками мода
-  • Recipe Browser × Magic Storage: Fully Connected:
-    - Убирает сообщение от мода при входе в мир
-  • Magic Storage:
-    - Убирает напоминание о поддержке автора от мода
-  • Secrets of the Shadows:
-    - Убирает сообщения от мода при входе в мир
-  • Infernum Master Patch:
-    - При загрузке мира автоматически включает сложность Infernum Master Patch, если в нем активны Мастер + Смерть + Инфернум (то есть мир был сохранён при сложности IMP)
-  • KZ的视觉效果前置 (KZ_VisualMod, библиотека для Luminous Water Reflection 潮之韵(Demo) и Shape of Light 光之形):
-    - Исправляет принудительное переключение освещения после перезагрузки модов, которое может чередоваться между Белым и Цветным, а также невозможность переключения режимов Ретро и Глюки в меню
-  • Calamity: Hunt of the Old God:
-    - Предотвращает краш при выгрузке модов, вызванный тем, что Calamity: Hunt of the Old God обращается к отрисовке игрока, что триггерит слои отрисовки уже частично выгруженных некоторых модов (например, WeaponOut Lite)
-
-Бывшие патчи:
-  • Rain Overhaul:
-    - Предотвращает внезапное исчезновение Пожирателя Богов из Calamity и Императрицы Света из WoTE (и, возможно, другие проблемы), только если выключен режим Rain World
-
-Этот мод будет становиться легче по мере того, как эти проблемы будут решаться авторами модов.
-
-(Только баги, краши и мелкие раздражители. Делать изменения контента или дизайна не буду)
+MY PATCHES
+MY PATCHES
+MY PATCHES
+MY PATCHES
+MY PATCHES
+MY PATCHES

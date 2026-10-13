@@ -4,90 +4,89 @@ using MonoMod.RuntimeDetour;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
 
-namespace VariousModPatches
+namespace VariousModPatches;
+
+public class CalamityHunt : ModSystem
 {
-    public class CalamityHunt : ModSystem
+    private ILHook _ilHook_CombineTileTargets;
+    private ILHook _ilHook_UnloadModContent;
+    private static bool _isUnloading = false;
+
+    public override void PostSetupContent()
     {
-        private ILHook _ilHook_CombineTileTargets;
-        private ILHook _ilHook_UnloadModContent;
-        private static bool _isUnloading = false;
+        if (!Netmode.IsSingleplayer) return;
+        if (!Instances.Config.PatchCalamityHunt) return;
 
-        public override void PostSetupContent()
-        {
-            if (!Netmode.IsSingleplayer) return;
-            if (!Instances.Config.PatchCalamityHunt) return;
+        var mod = VersionChecker.GetModChecked("CalamityHunt", "CalamityHunt");
+        if (mod == null) return;
 
-            var mod = VersionChecker.GetModChecked("CalamityHunt", "CalamityHunt");
-            if (mod == null) return;
+        if (!ApplyUnloadHook()) return;
+        if (!ApplyCombineTileTargetsHook(mod)) return;
+    }
 
-            if (!ApplyUnloadHook()) return;
-            if (!ApplyCombineTileTargetsHook(mod)) return;
-        }
+    public override void Unload()
+    {
+        _ilHook_CombineTileTargets?.Dispose();
+        _ilHook_UnloadModContent?.Dispose();
+        _isUnloading = false;
+    }
 
-        public override void Unload()
-        {
-            _ilHook_CombineTileTargets?.Dispose();
-            _ilHook_UnloadModContent?.Dispose();
-            _isUnloading = false;
-        }
+    private bool ApplyUnloadHook()
+    {
+        var method = Reflection.GetMethod(typeof(ModContent), "UnloadModContent",
+            BindingFlags.NonPublic | BindingFlags.Static, "CalamityHunt");
+        if (method == null) return false;
 
-        private bool ApplyUnloadHook()
-        {
-            var method = Reflection.GetMethod(typeof(ModContent), "UnloadModContent",
-                BindingFlags.NonPublic | BindingFlags.Static, "CalamityHunt");
-            if (method == null) return false;
+        return Reflection.TryCreateILHook(method, UnloadModContent_IL,
+            out _ilHook_UnloadModContent, "CalamityHunt");
+    }
 
-            return Reflection.TryCreateILHook(method, UnloadModContent_IL,
-                out _ilHook_UnloadModContent, "CalamityHunt");
-        }
+    private bool ApplyCombineTileTargetsHook(Mod mod)
+    {
+        var targetType = Reflection.GetType(mod, "CalamityHunt.Common.Systems.TileEdgeHighlight", "CalamityHunt");
+        if (targetType == null) return false;
 
-        private bool ApplyCombineTileTargetsHook(Mod mod)
-        {
-            var targetType = Reflection.GetType(mod, "CalamityHunt.Common.Systems.TileEdgeHighlight", "CalamityHunt");
-            if (targetType == null) return false;
+        var method = Reflection.GetMethod(targetType, "CombineTileTargets",
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "CalamityHunt");
+        if (method == null) return false;
 
-            var method = Reflection.GetMethod(targetType, "CombineTileTargets",
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "CalamityHunt");
-            if (method == null) return false;
+        return Reflection.TryCreateILHook(method, CombineTileTargets_IL,
+            out _ilHook_CombineTileTargets, "CalamityHunt");
+    }
 
-            return Reflection.TryCreateILHook(method, CombineTileTargets_IL,
-                out _ilHook_CombineTileTargets, "CalamityHunt");
-        }
+    private void UnloadModContent_IL(ILContext il)
+    {
+        var cursor = new ILCursor(il);
+        cursor.Emit(OpCodes.Call, typeof(CalamityHunt).GetMethod("SetUnloadingFlag",
+            BindingFlags.NonPublic | BindingFlags.Static));
+    }
 
-        private void UnloadModContent_IL(ILContext il)
-        {
-            var cursor = new ILCursor(il);
-            cursor.Emit(OpCodes.Call, typeof(CalamityHunt).GetMethod("SetUnloadingFlag",
-                BindingFlags.NonPublic | BindingFlags.Static));
-        }
-
-        private static void SetUnloadingFlag()
-        {
-            _isUnloading = true;
-        }
+    private static void SetUnloadingFlag()
+    {
+        _isUnloading = true;
+    }
 
 
-        private void CombineTileTargets_IL(ILContext il)
-        {
-            var cursor = new ILCursor(il);
+    private void CombineTileTargets_IL(ILContext il)
+    {
+        var cursor = new ILCursor(il);
 
-            // Inserting at the beginning of the method:
-            // if (IsUnloading()) return;
+        // Inserting at the beginning of the method:
+        // if (IsUnloading()) return;
 
-            var continueLabel = cursor.DefineLabel();
+        var continueLabel = cursor.DefineLabel();
 
-            cursor.Emit(OpCodes.Call, typeof(CalamityHunt).GetMethod("IsUnloading",
-                BindingFlags.Public | BindingFlags.Static));
-            cursor.Emit(OpCodes.Brfalse, continueLabel); // if false, continue
-            cursor.Emit(OpCodes.Ret); // if true, return
+        cursor.Emit(OpCodes.Call, typeof(CalamityHunt).GetMethod("IsUnloading",
+            BindingFlags.Public | BindingFlags.Static));
+        cursor.Emit(OpCodes.Brfalse, continueLabel); // if false, continue
+        cursor.Emit(OpCodes.Ret); // if true, return
 
-            cursor.MarkLabel(continueLabel);
-        }
+        cursor.MarkLabel(continueLabel);
+    }
 
-        public static bool IsUnloading()
-        {
-            return _isUnloading;
-        }
+    public static bool IsUnloading()
+    {
+        return _isUnloading;
     }
 }
 
