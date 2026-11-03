@@ -12,7 +12,7 @@ public static class Reflection
     {
         var type = mod.Code.GetType(typeName);
         if (type == null)
-            FileLogger.Warn(patchName, $"{typeName} type not found");
+            ModLog.Warn(patchName, $"{typeName} type not found");
         return type;
     }
 
@@ -20,7 +20,7 @@ public static class Reflection
     {
         var method = type.GetMethod(methodName, flags);
         if (method == null)
-            FileLogger.Warn(patchName, $"{methodName} method not found");
+            ModLog.Warn(patchName, $"{methodName} method not found");
         return method;
     }
 
@@ -28,7 +28,7 @@ public static class Reflection
     {
         var prop = type.GetProperty(propName, flags);
         if (prop == null)
-            FileLogger.Warn(patchName, $"{propName} property not found");
+            ModLog.Warn(patchName, $"{propName} property not found");
         return prop;
     }
 
@@ -36,7 +36,7 @@ public static class Reflection
     {
         var field = type.GetField(fieldName, flags);
         if (field == null)
-            FileLogger.Warn(patchName, $"{fieldName} field not found");
+            ModLog.Warn(patchName, $"{fieldName} field not found");
         return field;
     }
 
@@ -51,7 +51,7 @@ public static class Reflection
         }
         catch (Exception ex)
         {
-            FileLogger.Error(patchName, $"ILHook failed: {ex.Message}");
+            ModLog.Error(patchName, $"ILHook failed: {ex.Message}");
             return false;
         }
     }

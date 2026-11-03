@@ -1,6 +1,6 @@
 displayName = Various Mod Patches
 author = Gamos
-version = 0.10
+version = 0.11
 buildIgnore = *.sln, *.csproj, *.user, obj/*, bin/*, .git/*, .github/*, LICENSE, README.md, .gitignore, .gitattributes
 includeSource = true
 sortBefore = CalamityHunt, KZ_VisualMod

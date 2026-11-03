@@ -15,8 +15,8 @@ public static class VersionChecker
         if (!Instances.Config.DisableVersionWarnings)
         {
             string label = isSelf ? "Mod" : modName;
-            FileLogger.Warn(patchName, $"{label} version changed! Expected {SupportedVersions.Get(modName)}, got {mod.Version}.");
-            FileLogger.Info(patchName, "If you experience issues, disable this patch in config.");
+            ModLog.Warn(patchName, $"{label} version changed! Expected {SupportedVersions.Get(modName)}, got {mod.Version}.");
+            ModLog.Info(patchName, "If you experience issues, disable this patch in config.");
         }
 
         return mod;

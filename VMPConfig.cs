@@ -51,13 +51,6 @@ namespace VariousModPatches
         [ReloadRequired]
         public bool PatchKZVisualMod = true;
 
-        /*
-        [BackgroundColor(120, 60, 55, 220)]
-        [DefaultValue(true)]
-        [ReloadRequired]
-        public bool PatchRainOverhaul = true;
-        */
-
         [BackgroundColor(120, 60, 55, 220)]
         [DefaultValue(true)]
         [ReloadRequired]
@@ -67,7 +60,12 @@ namespace VariousModPatches
         [BackgroundColor(120, 60, 55, 220)]
         [DefaultValue(true)]
         [ReloadRequired]
-        public bool PatchInfernumMode = true;
+        public bool PatchInfernumMode_Metaballs = true;
+
+        [BackgroundColor(120, 60, 55, 220)]
+        [DefaultValue(true)]
+        [ReloadRequired]
+        public bool PatchInfernumMode_Polterghast = true;
 
         [Header("Debug")]
         [BackgroundColor(120, 60, 55, 220)]

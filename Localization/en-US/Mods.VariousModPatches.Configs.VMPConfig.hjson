@@ -52,8 +52,13 @@ PatchShapeOfLight: {
 	Tooltip: ""
 }
 
-PatchInfernumMode: {
-	Label: Infernum Mode
+PatchInfernumMode_Metaballs: {
+	Label: Infernum Mode (Metaballs)
+	Tooltip: ""
+}
+
+PatchInfernumMode_Polterghast: {
+	Label: Infernum Mode (Polterghast)
 	Tooltip: ""
 }
 

@@ -130,7 +130,7 @@ public class InfernumMasterPatch : ModSystem
 
             if (list == null)
             {
-                FileLogger.Warn("InfernumMasterPatch", "Difficulties list is null");
+                ModLog.Warn("InfernumMasterPatch", "Difficulties list is null");
                 return;
             }
 
@@ -145,11 +145,11 @@ public class InfernumMasterPatch : ModSystem
                 }
             }
 
-            FileLogger.Warn("InfernumMasterPatch", "MasterPatchDifficulty not found in difficulties list");
+            ModLog.Warn("InfernumMasterPatch", "MasterPatchDifficulty not found in difficulties list");
         }
         catch (Exception ex)
         {
-            FileLogger.Error("InfernumMasterPatch", $"EnablePatch failed: {ex.Message}");
+            ModLog.Error("InfernumMasterPatch", $"EnablePatch failed: {ex.Message}");
         }
     }
 }

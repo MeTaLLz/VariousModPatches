@@ -95,7 +95,7 @@ public class TerrariaAmbienceAudio : ModSystem
         }
         catch (Exception ex)
         {
-            FileLogger.Error("TerrariaAmbience_Audio", $"LoadFromSourcesReplacement error: {ex.Message}");
+            ModLog.Error("TerrariaAmbience_Audio", $"LoadFromSourcesReplacement error: {ex.Message}");
         }
     }
 

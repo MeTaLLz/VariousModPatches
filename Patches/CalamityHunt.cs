@@ -8,27 +8,28 @@ namespace VariousModPatches;
 
 public class CalamityHunt : ModSystem
 {
-    private ILHook _ilHook_CombineTileTargets;
     private ILHook _ilHook_UnloadModContent;
+    private static ILHook _ilHook_CombineTileTargets;
     private static bool _isUnloading = false;
+    private static Mod _calamityHuntMod;
 
     public override void PostSetupContent()
     {
         if (!Netmode.IsSingleplayer) return;
         if (!Instances.Config.PatchCalamityHunt) return;
 
-        var mod = VersionChecker.GetModChecked("CalamityHunt", "CalamityHunt");
-        if (mod == null) return;
+        _calamityHuntMod = VersionChecker.GetModChecked("CalamityHunt", "CalamityHunt");
+        if (_calamityHuntMod == null) return;
 
         if (!ApplyUnloadHook()) return;
-        if (!ApplyCombineTileTargetsHook(mod)) return;
     }
 
     public override void Unload()
     {
-        _ilHook_CombineTileTargets?.Dispose();
         _ilHook_UnloadModContent?.Dispose();
+        _ilHook_CombineTileTargets?.Dispose();
         _isUnloading = false;
+        _calamityHuntMod = null;
     }
 
     private bool ApplyUnloadHook()
@@ -41,45 +42,43 @@ public class CalamityHunt : ModSystem
             out _ilHook_UnloadModContent, "CalamityHunt");
     }
 
-    private bool ApplyCombineTileTargetsHook(Mod mod)
-    {
-        var targetType = Reflection.GetType(mod, "CalamityHunt.Common.Systems.TileEdgeHighlight", "CalamityHunt");
-        if (targetType == null) return false;
-
-        var method = Reflection.GetMethod(targetType, "CombineTileTargets",
-            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "CalamityHunt");
-        if (method == null) return false;
-
-        return Reflection.TryCreateILHook(method, CombineTileTargets_IL,
-            out _ilHook_CombineTileTargets, "CalamityHunt");
-    }
-
     private void UnloadModContent_IL(ILContext il)
     {
         var cursor = new ILCursor(il);
-        cursor.Emit(OpCodes.Call, typeof(CalamityHunt).GetMethod("SetUnloadingFlag",
+        
+        cursor.Emit(OpCodes.Call, typeof(CalamityHunt).GetMethod(nameof(OnUnloadStarted),
             BindingFlags.NonPublic | BindingFlags.Static));
     }
 
-    private static void SetUnloadingFlag()
+    private static void OnUnloadStarted()
     {
         _isUnloading = true;
+        
+        if (_ilHook_CombineTileTargets == null && _calamityHuntMod != null)
+        {
+            var targetType = Reflection.GetType(_calamityHuntMod, "CalamityHunt.Common.Systems.TileEdgeHighlight", "CalamityHunt");
+            if (targetType != null)
+            {
+                var method = Reflection.GetMethod(targetType, "CombineTileTargets",
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "CalamityHunt");
+                if (method != null)
+                {
+                    Reflection.TryCreateILHook(method, CombineTileTargets_IL, out _ilHook_CombineTileTargets, "CalamityHunt");
+                }
+            }
+        }
     }
 
-
-    private void CombineTileTargets_IL(ILContext il)
+    private static void CombineTileTargets_IL(ILContext il)
     {
         var cursor = new ILCursor(il);
-
-        // Inserting at the beginning of the method:
-        // if (IsUnloading()) return;
 
         var continueLabel = cursor.DefineLabel();
 
         cursor.Emit(OpCodes.Call, typeof(CalamityHunt).GetMethod("IsUnloading",
             BindingFlags.Public | BindingFlags.Static));
-        cursor.Emit(OpCodes.Brfalse, continueLabel); // if false, continue
-        cursor.Emit(OpCodes.Ret); // if true, return
+        cursor.Emit(OpCodes.Brfalse, continueLabel);
+        cursor.Emit(OpCodes.Ret);
 
         cursor.MarkLabel(continueLabel);
     }
@@ -104,9 +103,6 @@ public class CalamityHunt : ModSystem
     CalamityHunt calls Main.PlayerRenderer.DrawPlayer during mod unloading,
     which triggers draw layers from mods that are already partially unloaded (e.g. WeaponOutLite, SOTS).
     This causes NullReferenceException or ObjectDisposedException.
-
-    Placing a hook on UnloadModContent to set a flag when unloading starts, and patching CombineTileTargets
-    to check this flag and return early.
 
     sortBefore = CalamityHunt was added to build.txt to control load order, 
     bcs without this mod it would be unloaded before CalamityHunt.
