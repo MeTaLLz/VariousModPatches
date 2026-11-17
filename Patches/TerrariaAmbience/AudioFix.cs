@@ -14,37 +14,34 @@ namespace VariousModPatches;
 
 public class TerrariaAmbienceAudio : ModSystem
 {
-    private ILHook _ilHook;
+    private ILHook _ilHook_LoadFromSources;
     private static MethodInfo _findReplacementTrackMethod;
-
-    public override void PostSetupContent()
-    {
-        if (!Netmode.IsSingleplayer) return;
-        if (!Instances.Config.PatchTerrariaAmbience_Audio) return;
-
-        var mod = VersionChecker.GetModChecked("TerrariaAmbience", "TerrariaAmbience_Audio");
-        if (mod == null) return;
-
-        if (!ApplyLoadFromSourcesHook()) return;
-    }
 
     public override void Unload()
     {
-        _ilHook?.Dispose();
+        _ilHook_LoadFromSources?.Dispose();
         _findReplacementTrackMethod = null;
     }
 
-    private bool ApplyLoadFromSourcesHook()
+    public override void PostSetupContent()
+    {
+        if (!PatchApplier.ShouldApplyPatch(VMPConfig.Instance.PatchTerrariaAmbience_Audio,
+            "TerrariaAmbience", "TerrariaAmbience_Audio", PatchSide.Singleplayer, out _))
+            return;
+
+        ApplyLoadFromSourcesHook();
+    }
+
+    private void ApplyLoadFromSourcesHook()
     {
         var audioMethod = Reflection.GetMethod(typeof(LegacyAudioSystem), "LoadFromSources",
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "TerrariaAmbience_Audio");
-        if (audioMethod == null) return false;
+        if (audioMethod == null) return;
 
-        return Reflection.TryCreateILHook(audioMethod, LoadFromSources_IL,
-            out _ilHook, "TerrariaAmbience_Audio");
+        _ilHook_LoadFromSources = Reflection.TryCreateILHook(audioMethod, LoadFromSources_IL, "TerrariaAmbience_Audio");
     }
 
-    private void LoadFromSources_IL(ILContext il)
+    private static void LoadFromSources_IL(ILContext il)
     {   
         var cursor = new ILCursor(il);
 
@@ -95,7 +92,7 @@ public class TerrariaAmbienceAudio : ModSystem
         }
         catch (Exception ex)
         {
-            ModLog.Error("TerrariaAmbience_Audio", $"LoadFromSourcesReplacement error: {ex.Message}");
+            ModLog.Error("TerrariaAmbience_Audio", $"LoadFromSourcesReplacement error:\n{ex}");
         }
     }
 
@@ -108,14 +105,13 @@ public class TerrariaAmbienceAudio : ModSystem
 }
 
 /* 
-The problem is:
-System.NullReferenceException: Object reference not set to an instance of an object.
-at Terraria.Audio.LegacyAudioSystem.LoadFromSources() in tModLoader\Terraria\Audio\LegacyAudioSystem.cs:line 37
+    System.NullReferenceException: Object reference not set to an instance of an object.
+    at Terraria.Audio.LegacyAudioSystem.LoadFromSources() in tModLoader\Terraria\Audio\LegacyAudioSystem.cs:line 37
 
-The issue occurs because AudioTracks[i] can be null,
-and the original code calls Stop() and Dispose() without checking for null. Idk why 
-TerrariaAmbience creates null entries.
+    The issue occurs because AudioTracks[i] can be null,
+    and the original code calls Stop() and Dispose() without checking for null. Idk why 
+    TerrariaAmbience creates null entries.
 
-Replacing the entire LoadFromSources method with a safe version
-that checks for null before calling Stop() and Dispose().
+    Replacing the entire LoadFromSources method with a safe version
+    that checks for null before calling Stop() and Dispose().
 */

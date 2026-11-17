@@ -9,50 +9,47 @@ namespace VariousModPatches;
 
 public class MagicStorage : ModSystem
 {
-    private ILHook _ilHook;
-
-    public override void PostSetupContent()
-    {
-        if (Netmode.IsServer) return;
-        if (!Instances.Config.PatchMagicStorage) return;
-
-        var mod = VersionChecker.GetModChecked("MagicStorage", "MagicStorage");
-        if (mod == null) return;
-
-        if (!ApplyPreUpdateHook(mod)) return;
-    }
+    private ILHook _ilHook_PreUpdate;
 
     public override void Unload()
     {
-        _ilHook?.Dispose();
+        _ilHook_PreUpdate?.Dispose();
     }
 
-    private bool ApplyPreUpdateHook(Mod mod)
+    public override void PostSetupContent()
+    {
+        if (!PatchApplier.ShouldApplyPatch(VMPConfig.Instance.PatchMagicStorage,
+            "MagicStorage", "MagicStorage", PatchSide.Client, out var mod))
+            return;
+
+        ApplyPreUpdateHook(mod);
+    }
+
+    private void ApplyPreUpdateHook(Mod mod)
     {
         var targetType = Reflection.GetType(mod, "MagicStorage.StoragePlayer", "MagicStorage");
-        if (targetType == null) return false;
+        if (targetType == null) return;
 
         var method = Reflection.GetMethod(targetType, "PreUpdate",
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "MagicStorage");
-        if (method == null) return false;
+        if (method == null) return;
 
-        return Reflection.TryCreateILHook(method, PreUpdate_IL,
-            out _ilHook, "MagicStorage");
+        _ilHook_PreUpdate = Reflection.TryCreateILHook(method, PreUpdate_IL, "MagicStorage");
     }
 
-    private void PreUpdate_IL(ILContext il)
+    private static void PreUpdate_IL(ILContext il)
     {
         var cursor = new ILCursor(il);
 
         while (cursor.TryGotoNext(MoveType.Before,
             i => i.MatchCall(typeof(Main), "NewTextMultiline")))
         {
-            cursor.Emit(OpCodes.Pop); // remove parameters
             cursor.Emit(OpCodes.Pop);
             cursor.Emit(OpCodes.Pop);
             cursor.Emit(OpCodes.Pop);
-            cursor.Remove(); // remove original call
-            cursor.Emit(OpCodes.Nop); // insert no-op
+            cursor.Emit(OpCodes.Pop);
+            cursor.Remove();
+            cursor.Emit(OpCodes.Nop);
         }
     }
 }

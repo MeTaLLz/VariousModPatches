@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 namespace VariousModPatches
@@ -7,6 +8,8 @@ namespace VariousModPatches
     [SliderColor(200, 130, 70, 255)]
     public class VMPConfig : ModConfig
     {
+        public static VMPConfig Instance => ModContent.GetInstance<VMPConfig>();
+        
         public override ConfigScope Mode => ConfigScope.ClientSide;
 
         [Header("QoL")]
@@ -66,10 +69,5 @@ namespace VariousModPatches
         [DefaultValue(true)]
         [ReloadRequired]
         public bool PatchInfernumMode_Polterghast = true;
-
-        [Header("Debug")]
-        [BackgroundColor(120, 60, 55, 220)]
-        [DefaultValue(false)]
-        public bool DisableVersionWarnings = false;
     }
 }

@@ -9,38 +9,35 @@ public class InfernumMode_Polterghast : ModSystem
 {
     private ILHook _ilHook_DecideNewPosition;
 
-    public override void PostSetupContent()
-    {
-        if (!Netmode.IsSingleplayer) return;
-        if (!Instances.Config.PatchInfernumMode_Polterghast) return;
-
-        var mod = VersionChecker.GetModChecked("InfernumMode", "InfernumMode_Polterghast");
-        if (mod == null) return;
-
-        if (!ApplyPolterghastLegHook(mod)) return;
-    }
-
     public override void Unload()
     {
         _ilHook_DecideNewPosition?.Dispose();
     }
 
-    private bool ApplyPolterghastLegHook(Mod mod)
+    public override void PostSetupContent()
+    {
+        if (!PatchApplier.ShouldApplyPatch(VMPConfig.Instance.PatchInfernumMode_Polterghast,
+            "InfernumMode", "InfernumMode_Polterghast", PatchSide.Singleplayer, out var mod))
+            return;
+
+        ApplyPolterghastLegHook(mod);
+    }
+
+    private void ApplyPolterghastLegHook(Mod mod)
     {
         var targetType = Reflection.GetType(mod, 
             "InfernumMode.Content.BehaviorOverrides.BossAIs.Polterghast.PolterghastLeg", 
             "InfernumMode_Polterghast");
-        if (targetType == null) return false;
+        if (targetType == null) return;
 
         var method = Reflection.GetMethod(targetType, "DecideNewPositionToStickTo",
             BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, "InfernumMode_Polterghast");
-        if (method == null) return false;
+        if (method == null) return;
 
-        return Reflection.TryCreateILHook(method, DecideNewPosition_IL,
-            out _ilHook_DecideNewPosition, "InfernumMode_Polterghast");
+        _ilHook_DecideNewPosition = Reflection.TryCreateILHook(method, DecideNewPosition_IL, "InfernumMode_Polterghast");
     }
 
-    private void DecideNewPosition_IL(ILContext il)
+    private static void DecideNewPosition_IL(ILContext il)
     {
         var cursor = new ILCursor(il)
         {

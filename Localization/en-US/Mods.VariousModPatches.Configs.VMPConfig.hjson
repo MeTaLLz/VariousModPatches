@@ -61,8 +61,3 @@ PatchInfernumMode_Polterghast: {
 	Label: Infernum Mode (Polterghast)
 	Tooltip: ""
 }
-
-DisableVersionWarnings: {
-	Label: Disable version warnings
-	Tooltip: ""
-}

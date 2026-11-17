@@ -9,37 +9,34 @@ namespace VariousModPatches;
 public class InfernumMode_Metaballs : ModSystem
 {
     private ILHook _ilHook_CreateMetaballs;
-
-    public override void PostSetupContent()
-    {
-        if (!Netmode.IsSingleplayer) return;
-        if (!Instances.Config.PatchInfernumMode_Metaballs) return;
-
-        var mod = VersionChecker.GetModChecked("InfernumMode", "InfernumMode_Metaballs");
-        if (mod == null) return;
-
-        if (!ApplyCreateMetaballsHook(mod)) return;
-    }
-
+    
     public override void Unload()
     {
         _ilHook_CreateMetaballs?.Dispose();
     }
 
-    private bool ApplyCreateMetaballsHook(Mod mod)
+    public override void PostSetupContent()
+    {
+        if (!PatchApplier.ShouldApplyPatch(VMPConfig.Instance.PatchInfernumMode_Metaballs,
+            "InfernumMode", "InfernumMode_Metaballs", PatchSide.Singleplayer, out var mod))
+            return;
+
+        ApplyCreateMetaballsHook(mod);
+    }
+
+    private void ApplyCreateMetaballsHook(Mod mod)
     {
         var targetType = Reflection.GetType(mod, "InfernumMode.Utilities", "InfernumMode_Metaballs");
-        if (targetType == null) return false;
+        if (targetType == null) return;
 
         var method = Reflection.GetMethod(targetType, "CreateMetaballsFromTexture",
             BindingFlags.Public | BindingFlags.Static, "InfernumMode_Metaballs");
-        if (method == null) return false;
+        if (method == null) return;
 
-        return Reflection.TryCreateILHook(method, CreateMetaballsFromTexture_IL,
-            out _ilHook_CreateMetaballs, "InfernumMode_Metaballs");
+        _ilHook_CreateMetaballs = Reflection.TryCreateILHook(method, CreateMetaballsFromTexture_IL, "InfernumMode_Metaballs");
     }
 
-    private void CreateMetaballsFromTexture_IL(ILContext il)
+    private static void CreateMetaballsFromTexture_IL(ILContext il)
     {
         var cursor = new ILCursor(il);
 

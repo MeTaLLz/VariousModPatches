@@ -9,38 +9,35 @@ namespace VariousModPatches;
 
 public class SOTS : ModSystem
 {
-    private ILHook _ilHook;
-
-    public override void PostSetupContent()
-    {
-        if (Netmode.IsServer) return;
-        if (!Instances.Config.PatchSOTS) return;
-
-        var mod = VersionChecker.GetModChecked("SOTS", "SOTS");
-        if (mod == null) return;
-
-        if (!ApplyOnEnterWorldHook(mod)) return;
-    }
+    private ILHook _ilHook_OnEnterWorld;
 
     public override void Unload()
     {
-        _ilHook?.Dispose();
+        _ilHook_OnEnterWorld?.Dispose();
     }
 
-    private bool ApplyOnEnterWorldHook(Mod mod)
+    public override void PostSetupContent()
+    {
+        if (!PatchApplier.ShouldApplyPatch(VMPConfig.Instance.PatchSOTS,
+            "SOTS", "SOTS", PatchSide.Client, out var mod))
+            return;
+
+        ApplyOnEnterWorldHook(mod);
+    }
+
+    private void ApplyOnEnterWorldHook(Mod mod)
     {
         var targetType = Reflection.GetType(mod, "SOTS.SOTSPlayer", "SOTS");
-        if (targetType == null) return false;
+        if (targetType == null) return;
 
         var method = Reflection.GetMethod(targetType, "OnEnterWorld",
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "SOTS");
-        if (method == null) return false;
+        if (method == null) return;
 
-        return Reflection.TryCreateILHook(method, OnEnterWorld_IL,
-            out _ilHook, "SOTS");
+        _ilHook_OnEnterWorld = Reflection.TryCreateILHook(method, OnEnterWorld_IL, "SOTS");
     }
 
-    private void OnEnterWorld_IL(ILContext il)
+    private static void OnEnterWorld_IL(ILContext il)
     {
         var cursor = new ILCursor(il);
 

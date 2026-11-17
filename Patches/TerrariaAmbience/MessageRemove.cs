@@ -9,39 +9,36 @@ namespace VariousModPatches;
 
 public class TerrariaAmbienceMessage : ModSystem
 {
-    private ILHook _ilHook;
-
-    public override void PostSetupContent()
-    {
-        if (Netmode.IsServer) return;
-        if (!Instances.Config.PatchTerrariaAmbience_Message) return;
-
-        var mod = VersionChecker.GetModChecked("TerrariaAmbience", "TerrariaAmbience_Message");
-        if (mod == null) return;
-
-        if (!ApplyOnEnterWorldHook(mod)) return;
-    }
+    private ILHook _ilHook_OnEnterWorld;
 
     public override void Unload()
     {
-        _ilHook?.Dispose();
+        _ilHook_OnEnterWorld?.Dispose();
     }
 
-    private bool ApplyOnEnterWorldHook(Mod mod)
+    public override void PostSetupContent()
+    {
+        if (!PatchApplier.ShouldApplyPatch(VMPConfig.Instance.PatchTerrariaAmbience_Message,
+            "TerrariaAmbience", "TerrariaAmbience_Message", PatchSide.Client, out var mod))
+            return;
+
+        ApplyOnEnterWorldHook(mod);
+    }
+
+    private void ApplyOnEnterWorldHook(Mod mod)
     {
         var targetType = Reflection.GetType(mod,
             "TerrariaAmbience.Content.Players.AmbientPlayer", "TerrariaAmbience_Message");
-        if (targetType == null) return false;
+        if (targetType == null) return;
 
         var method = Reflection.GetMethod(targetType, "OnEnterWorld",
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "TerrariaAmbience_Message");
-        if (method == null) return false;
+        if (method == null) return;
 
-        return Reflection.TryCreateILHook(method, OnEnterWorld_IL,
-            out _ilHook, "TerrariaAmbience_Message");
+        _ilHook_OnEnterWorld = Reflection.TryCreateILHook(method, OnEnterWorld_IL, "TerrariaAmbience_Message");
     }
 
-    private void OnEnterWorld_IL(ILContext il)
+    private static void OnEnterWorld_IL(ILContext il)
     {
         var cursor = new ILCursor(il);
 

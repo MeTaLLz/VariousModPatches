@@ -16,20 +16,6 @@ public class InfernumMasterPatch : ModSystem
     private static PropertyInfo _infernumModeEnabledProp;
     private static FieldInfo _deathField;
 
-    public override void PostSetupContent()
-    {
-        if (!Netmode.IsSingleplayer) return;
-        if (!Instances.Config.PatchInfernumMasterPatch) return;
-
-        var mod = VersionChecker.GetModChecked("InfernumMasterPatch", "InfernumMasterPatch");
-        if (mod == null) return;
-
-        if (!FindDifficultyType(mod)) return;
-        if (!FindEnabledProperty(out _difficultyEnabledProp)) return;
-        if (!FindCalamityTypes()) return;
-        if (!FindInfernumTypes()) return;
-    }
-
     public override void Unload()
     {
         _difficultyType = null;
@@ -38,6 +24,18 @@ public class InfernumMasterPatch : ModSystem
         _difficultyEnabledProp = null;
         _infernumModeEnabledProp = null;
         _deathField = null;
+    }
+
+    public override void PostSetupContent()
+    {
+        if (!PatchApplier.ShouldApplyPatch(VMPConfig.Instance.PatchInfernumMasterPatch,
+            "InfernumMasterPatch", "InfernumMasterPatch", PatchSide.Singleplayer, out var mod))
+            return;
+
+        if (!FindDifficultyType(mod)) return;
+        if (!FindEnabledProperty(out _difficultyEnabledProp)) return;
+        if (!FindCalamityTypes()) return;
+        if (!FindInfernumTypes()) return;
     }
 
     private static bool FindDifficultyType(Mod mod)
@@ -55,7 +53,7 @@ public class InfernumMasterPatch : ModSystem
 
     private static bool FindCalamityTypes()
     {
-        var calamity = VersionChecker.GetModChecked("CalamityMod", "InfernumMasterPatch", isSelf: false);
+        var calamity = PatchApplier.GetMod("CalamityMod", "InfernumMasterPatch", isSelf: false);
         if (calamity == null) return false;
 
         var sysType = Reflection.GetType(calamity, "CalamityMod.Systems.DifficultyModeSystem", "InfernumMasterPatch");
@@ -79,7 +77,7 @@ public class InfernumMasterPatch : ModSystem
 
     private static bool FindInfernumTypes()
     {
-        var infernum = VersionChecker.GetModChecked("InfernumMode", "InfernumMasterPatch", isSelf: false);
+        var infernum = PatchApplier.GetMod("InfernumMode", "InfernumMasterPatch", isSelf: false);
         if (infernum == null) return false;
 
         var worldSaveType = Reflection.GetType(infernum,
@@ -115,7 +113,6 @@ public class InfernumMasterPatch : ModSystem
     {
         try
         {
-            // Calamity difficulty list
             IList list = null;
 
             if (_difficultiesField != null)
@@ -134,7 +131,6 @@ public class InfernumMasterPatch : ModSystem
                 return;
             }
 
-            // IMP difficulty
             foreach (var diff in list)
             {
                 if (diff.GetType() == _difficultyType)
@@ -149,7 +145,7 @@ public class InfernumMasterPatch : ModSystem
         }
         catch (Exception ex)
         {
-            ModLog.Error("InfernumMasterPatch", $"EnablePatch failed: {ex.Message}");
+            ModLog.Error("InfernumMasterPatch", $"EnablePatch failed:\n{ex}");
         }
     }
 }

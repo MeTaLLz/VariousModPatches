@@ -5,7 +5,7 @@ namespace VariousModPatches;
 
 public static class SupportedVersions
 {
-    private static readonly Dictionary<string, Version> _versions = new()
+    private static readonly Dictionary<string, Version> Versions = new()
     {
         { "TerrariaAmbience", new(0, 3, 7, 1) },
         { "InfernumMasterPatch", new(1, 2, 1) },
@@ -21,6 +21,6 @@ public static class SupportedVersions
 
     public static Version Get(string modName)
     {
-        return _versions.TryGetValue(modName, out var version) ? version : null;
+        return Versions.TryGetValue(modName, out var version) ? version : null;
     }
 }

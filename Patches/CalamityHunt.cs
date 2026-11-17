@@ -13,17 +13,6 @@ public class CalamityHunt : ModSystem
     private static bool _isUnloading = false;
     private static Mod _calamityHuntMod;
 
-    public override void PostSetupContent()
-    {
-        if (!Netmode.IsSingleplayer) return;
-        if (!Instances.Config.PatchCalamityHunt) return;
-
-        _calamityHuntMod = VersionChecker.GetModChecked("CalamityHunt", "CalamityHunt");
-        if (_calamityHuntMod == null) return;
-
-        if (!ApplyUnloadHook()) return;
-    }
-
     public override void Unload()
     {
         _ilHook_UnloadModContent?.Dispose();
@@ -32,17 +21,25 @@ public class CalamityHunt : ModSystem
         _calamityHuntMod = null;
     }
 
-    private bool ApplyUnloadHook()
+    public override void PostSetupContent()
+    {
+        if (!PatchApplier.ShouldApplyPatch(VMPConfig.Instance.PatchCalamityHunt,
+            "CalamityHunt", "CalamityHunt", PatchSide.Singleplayer, out _calamityHuntMod))
+            return;
+
+        ApplyUnloadHook();
+    }
+
+    private void ApplyUnloadHook()
     {
         var method = Reflection.GetMethod(typeof(ModContent), "UnloadModContent",
             BindingFlags.NonPublic | BindingFlags.Static, "CalamityHunt");
-        if (method == null) return false;
+        if (method == null) return;
 
-        return Reflection.TryCreateILHook(method, UnloadModContent_IL,
-            out _ilHook_UnloadModContent, "CalamityHunt");
+        _ilHook_UnloadModContent = Reflection.TryCreateILHook(method, UnloadModContent_IL, "CalamityHunt");
     }
 
-    private void UnloadModContent_IL(ILContext il)
+    private static void UnloadModContent_IL(ILContext il)
     {
         var cursor = new ILCursor(il);
         
@@ -63,7 +60,7 @@ public class CalamityHunt : ModSystem
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "CalamityHunt");
                 if (method != null)
                 {
-                    Reflection.TryCreateILHook(method, CombineTileTargets_IL, out _ilHook_CombineTileTargets, "CalamityHunt");
+                    _ilHook_CombineTileTargets = Reflection.TryCreateILHook(method, CombineTileTargets_IL, "CalamityHunt");
                 }
             }
         }
@@ -90,7 +87,6 @@ public class CalamityHunt : ModSystem
 }
 
 /*
-    One of the problem is:
     System.NullReferenceException: Object reference not set to an instance of an object.
     at WeaponOutLite.Common.Players.WeaponOutPlayerRenderer.get_IsShowingHeldItem() in WeaponOutLite\Common\Players\WeaponOutPlayerRenderer.cs:line 52
     at WeaponOutLite.Common.WeaponOutLayerRenderer.CanDrawBaseDrawData(PlayerDrawSet drawInfo, Player& drawPlayer, WeaponOutPlayerRenderer& modPlayer, IDrawItemPose& holdStyle, Item& heldItem, Texture2D& itemTexture) in WeaponOutLite\Common\WeaponOutLayerRenderer.cs:line 387

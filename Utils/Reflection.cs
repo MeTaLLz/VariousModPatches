@@ -40,19 +40,16 @@ public static class Reflection
         return field;
     }
 
-    public static bool TryCreateILHook(MethodInfo method, ILContext.Manipulator manipulator,
-        out ILHook hook, string patchName)
+    public static ILHook TryCreateILHook(MethodInfo method, ILContext.Manipulator manipulator, string patchName)
     {
-        hook = null;
         try
         {
-            hook = new ILHook(method, manipulator);
-            return true;
+            return new ILHook(method, manipulator);
         }
-        catch (Exception ex)
+        catch
         {
-            ModLog.Error(patchName, $"ILHook failed: {ex.Message}");
-            return false;
+            PatchReporter.RegisterFailure(patchName);
+            throw;
         }
     }
 }

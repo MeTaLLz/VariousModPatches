@@ -9,40 +9,37 @@ namespace VariousModPatches;
 
 public class RecipeFavoritesSync : ModSystem
 {
-    private ILHook _ilHook;
-
-    public override void PostSetupContent()
-    {
-        if (Netmode.IsServer) return;
-        if (!Instances.Config.PatchRecipeFavoritesSync) return;
-
-        var mod = VersionChecker.GetModChecked("RecipeFavoritesSync", "RecipeFavoritesSync");
-        if (mod == null) return;
-
-        if (!ApplyOnEnterWorldHook(mod)) return;
-    }
+    private ILHook _ilHook_OnEnterWorld;
 
     public override void Unload()
     {
-        _ilHook?.Dispose();
+        _ilHook_OnEnterWorld?.Dispose();
     }
 
-    private bool ApplyOnEnterWorldHook(Mod mod)
+    public override void PostSetupContent()
+    {
+        if (!PatchApplier.ShouldApplyPatch(VMPConfig.Instance.PatchRecipeFavoritesSync,
+            "RecipeFavoritesSync", "RecipeFavoritesSync", PatchSide.Client, out var mod))
+            return;
+
+        ApplyOnEnterWorldHook(mod);
+    }
+
+    private void ApplyOnEnterWorldHook(Mod mod)
     {
         var targetType = Reflection.GetType(mod,
             "RecipeFavoritesSync.Integration.RecipeBrowser.RecipeFavoritesSyncPlayer",
             "RecipeFavoritesSync");
-        if (targetType == null) return false;
+        if (targetType == null) return;
 
         var method = Reflection.GetMethod(targetType, "OnEnterWorld",
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, "RecipeFavoritesSync");
-        if (method == null) return false;
+        if (method == null) return;
 
-        return Reflection.TryCreateILHook(method, OnEnterWorld_IL,
-            out _ilHook, "RecipeFavoritesSync");
+        _ilHook_OnEnterWorld = Reflection.TryCreateILHook(method, OnEnterWorld_IL, "RecipeFavoritesSync");
     }
 
-    private void OnEnterWorld_IL(ILContext il)
+    private static void OnEnterWorld_IL(ILContext il)
     {
         var cursor = new ILCursor(il);
 
